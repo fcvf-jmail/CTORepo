@@ -403,3 +403,9 @@ FodyWeavers.xsd
 
 # dotnet CLI installation script
 dotnet-install.sh
+
+# Environment variables (use .env.example as template)
+.env
+
+# Docker
+docker-compose.override.yml

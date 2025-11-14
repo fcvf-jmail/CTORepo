@@ -75,18 +75,19 @@ builder.Services.AddSwaggerGen(options =>
 var app = builder.Build();
 
 // Настройка конвейера обработки HTTP-запросов
+app.UseSwagger();
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "Web API для управления статьями v1");
+    options.DocumentTitle = "Web API - Документация";
+    options.RoutePrefix = "swagger";
+});
+
+// HTTPS редирект только в Development (в Docker используется HTTP)
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(options =>
-    {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Web API для управления статьями v1");
-        options.DocumentTitle = "Web API - Документация";
-        options.RoutePrefix = "swagger";
-    });
+    app.UseHttpsRedirection();
 }
-
-app.UseHttpsRedirection();
 
 // Регистрация эндпоинтов для статей и разделов
 app.MapArticleEndpoints();
