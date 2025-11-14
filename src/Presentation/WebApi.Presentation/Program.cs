@@ -13,6 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddScoped<ISectionService, SectionService>();
 builder.Services.AddScoped<IArticleService, ArticleService>();
 
 builder.Services.AddEndpointsApiExplorer();
@@ -29,8 +30,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Регистрация эндпоинтов для статей
+// Регистрация эндпоинтов для статей и разделов
 app.MapArticleEndpoints();
+app.MapSectionEndpoints();
 
 var summaries = new[]
 {
