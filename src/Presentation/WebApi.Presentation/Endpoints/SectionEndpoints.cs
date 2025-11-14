@@ -14,15 +14,21 @@ public static class SectionEndpoints
     /// </summary>
     public static void MapSectionEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/sections").WithTags("Sections");
+        var group = app.MapGroup("/api/sections")
+            .WithTags("Sections")
+            .WithDescription("Операции для работы с разделами");
 
         group.MapGet("/", GetAllSections)
             .WithName("GetAllSections")
+            .WithSummary("Получить все разделы")
+            .WithDescription("Возвращает список всех разделов, отсортированный по количеству статей (убывание). Теги в каждом разделе отсортированы по алфавиту.")
             .WithOpenApi()
             .Produces<List<SectionResponse>>(StatusCodes.Status200OK);
 
         group.MapGet("/{sectionId}/articles", GetArticlesBySection)
             .WithName("GetArticlesBySection")
+            .WithSummary("Получить статьи раздела")
+            .WithDescription("Возвращает список статей указанного раздела, отсортированный по дате обновления/создания (убывание). Теги в каждой статье отсортированы по алфавиту.")
             .WithOpenApi()
             .Produces<List<ArticleResponse>>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status404NotFound);

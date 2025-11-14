@@ -14,16 +14,22 @@ public static class ArticleEndpoints
     /// </summary>
     public static void MapArticleEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/articles").WithTags("Articles");
+        var group = app.MapGroup("/api/articles")
+            .WithTags("Articles")
+            .WithDescription("Операции для работы со статьями");
 
         group.MapGet("/{id}", GetArticleById)
             .WithName("GetArticleById")
+            .WithSummary("Получить статью по идентификатору")
+            .WithDescription("Возвращает статью с указанным идентификатором. Теги в ответе отсортированы по алфавиту.")
             .WithOpenApi()
             .Produces<ArticleResponse>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status404NotFound);
 
         group.MapPost("/", CreateArticle)
             .WithName("CreateArticle")
+            .WithSummary("Создать новую статью")
+            .WithDescription("Создает новую статью. Раздел определяется автоматически на основе набора тегов. Теги дедуплицируются и сортируются по алфавиту.")
             .WithOpenApi()
             .Produces<ArticleResponse>(StatusCodes.Status201Created)
             .Produces(StatusCodes.Status400BadRequest)
@@ -31,6 +37,8 @@ public static class ArticleEndpoints
 
         group.MapPut("/{id}", UpdateArticle)
             .WithName("UpdateArticle")
+            .WithSummary("Обновить существующую статью")
+            .WithDescription("Обновляет существующую статью. При изменении тегов статья может переместиться в другой раздел. Теги дедуплицируются и сортируются по алфавиту.")
             .WithOpenApi()
             .Produces<ArticleResponse>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status400BadRequest)
@@ -38,6 +46,8 @@ public static class ArticleEndpoints
 
         group.MapDelete("/{id}", DeleteArticle)
             .WithName("DeleteArticle")
+            .WithSummary("Удалить статью")
+            .WithDescription("Удаляет статью по указанному идентификатору.")
             .WithOpenApi()
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status404NotFound);
