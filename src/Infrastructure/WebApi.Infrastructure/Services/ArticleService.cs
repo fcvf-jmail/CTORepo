@@ -13,14 +13,17 @@ namespace WebApi.Infrastructure.Services;
 public class ArticleService : IArticleService
 {
     private readonly ApplicationDbContext _context;
+    private readonly ISectionService _sectionService;
 
     /// <summary>
     /// Конструктор сервиса
     /// </summary>
     /// <param name="context">Контекст базы данных</param>
-    public ArticleService(ApplicationDbContext context)
+    /// <param name="sectionService">Сервис для работы с разделами</param>
+    public ArticleService(ApplicationDbContext context, ISectionService sectionService)
     {
         _context = context;
+        _sectionService = sectionService;
     }
 
     /// <summary>
@@ -46,10 +49,10 @@ public class ArticleService : IArticleService
     /// </summary>
     public async Task<Result<ArticleResponse>> CreateAsync(CreateArticleRequest request, CancellationToken cancellationToken = default)
     {
-        var section = await _context.Sections.FindAsync(new object[] { request.SectionId }, cancellationToken);
-        if (section == null)
+        var sectionResult = await _sectionService.GetOrCreateSectionForTagsAsync(request.Tags, cancellationToken);
+        if (!sectionResult.IsSuccess)
         {
-            return Result<ArticleResponse>.Failure("Раздел не найден");
+            return Result<ArticleResponse>.Failure(sectionResult.Error!);
         }
 
         var article = new Article
@@ -57,7 +60,7 @@ public class ArticleService : IArticleService
             Id = Guid.NewGuid(),
             Title = request.Title,
             Content = request.Content,
-            SectionId = request.SectionId
+            SectionId = sectionResult.Value
         };
 
         var tags = await ProcessTagsAsync(request.Tags, cancellationToken);
@@ -86,15 +89,15 @@ public class ArticleService : IArticleService
             return Result<ArticleResponse>.Failure("Статья не найдена");
         }
 
-        var section = await _context.Sections.FindAsync(new object[] { request.SectionId }, cancellationToken);
-        if (section == null)
+        var sectionResult = await _sectionService.GetOrCreateSectionForTagsAsync(request.Tags, cancellationToken);
+        if (!sectionResult.IsSuccess)
         {
-            return Result<ArticleResponse>.Failure("Раздел не найден");
+            return Result<ArticleResponse>.Failure(sectionResult.Error!);
         }
 
         article.Title = request.Title;
         article.Content = request.Content;
-        article.SectionId = request.SectionId;
+        article.SectionId = sectionResult.Value;
 
         var tags = await ProcessTagsAsync(request.Tags, cancellationToken);
         article.Tags.Clear();
@@ -186,7 +189,7 @@ public class ArticleService : IArticleService
             Title = article.Title,
             Content = article.Content,
             SectionId = article.SectionId,
-            Tags = article.Tags.Select(t => t.Name).ToList(),
+            Tags = article.Tags.Select(t => t.Name).OrderBy(n => n.ToLowerInvariant()).ToList(),
             CreatedAt = article.CreatedAt,
             UpdatedAt = article.UpdatedAt
         };

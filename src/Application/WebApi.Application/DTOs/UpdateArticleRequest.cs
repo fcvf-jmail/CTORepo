@@ -22,12 +22,6 @@ public class UpdateArticleRequest
     public string Content { get; set; } = string.Empty;
 
     /// <summary>
-    /// Идентификатор раздела
-    /// </summary>
-    [Required(ErrorMessage = "Идентификатор раздела обязателен")]
-    public Guid SectionId { get; set; }
-
-    /// <summary>
     /// Список тегов
     /// </summary>
     public List<string> Tags { get; set; } = new();

@@ -11,6 +11,11 @@ public class Section : BaseEntity
     public string Name { get; set; } = string.Empty;
 
     /// <summary>
+    /// Коллекция тегов, определяющих данный раздел
+    /// </summary>
+    public ICollection<Tag> Tags { get; set; } = new List<Tag>();
+
+    /// <summary>
     /// Коллекция статей, принадлежащих данному разделу
     /// </summary>
     public ICollection<Article> Articles { get; set; } = new List<Article>();

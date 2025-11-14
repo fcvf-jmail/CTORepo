@@ -13,7 +13,7 @@ public class ArticleServiceTests : IDisposable
 {
     private readonly ApplicationDbContext _context;
     private readonly ArticleService _articleService;
-    private readonly Section _testSection;
+    private readonly SectionService _sectionService;
 
     public ArticleServiceTests()
     {
@@ -22,16 +22,8 @@ public class ArticleServiceTests : IDisposable
             .Options;
 
         _context = new ApplicationDbContext(options);
-        _articleService = new ArticleService(_context);
-
-        _testSection = new Section
-        {
-            Id = Guid.NewGuid(),
-            Name = "Тестовый раздел",
-            CreatedAt = DateTime.UtcNow
-        };
-        _context.Sections.Add(_testSection);
-        _context.SaveChanges();
+        _sectionService = new SectionService(_context);
+        _articleService = new ArticleService(_context, _sectionService);
     }
 
     /// <summary>
@@ -44,7 +36,6 @@ public class ArticleServiceTests : IDisposable
         {
             Title = "Тестовая статья",
             Content = "Содержимое тестовой статьи",
-            SectionId = _testSection.Id,
             Tags = new List<string> { "тег1", "Тег2", "ТЕГ1", "тег2", "тег3" }
         };
 
@@ -54,7 +45,7 @@ public class ArticleServiceTests : IDisposable
         Assert.NotNull(result.Value);
         Assert.Equal("Тестовая статья", result.Value.Title);
         Assert.Equal("Содержимое тестовой статьи", result.Value.Content);
-        Assert.Equal(_testSection.Id, result.Value.SectionId);
+        Assert.NotEqual(Guid.Empty, result.Value.SectionId);
         Assert.Equal(3, result.Value.Tags.Count);
         Assert.Contains("тег1", result.Value.Tags);
         Assert.Contains("Тег2", result.Value.Tags);
@@ -71,7 +62,6 @@ public class ArticleServiceTests : IDisposable
         {
             Title = "Статья без тегов",
             Content = "Содержимое статьи без тегов",
-            SectionId = _testSection.Id,
             Tags = new List<string>()
         };
 
@@ -81,26 +71,6 @@ public class ArticleServiceTests : IDisposable
         Assert.NotNull(result.Value);
         Assert.Equal("Статья без тегов", result.Value.Title);
         Assert.Empty(result.Value.Tags);
-    }
-
-    /// <summary>
-    /// Тест создания статьи с несуществующим разделом
-    /// </summary>
-    [Fact]
-    public async Task CreateAsync_WithInvalidSectionId_ShouldReturnFailure()
-    {
-        var request = new CreateArticleRequest
-        {
-            Title = "Тестовая статья",
-            Content = "Содержимое",
-            SectionId = Guid.NewGuid(),
-            Tags = new List<string>()
-        };
-
-        var result = await _articleService.CreateAsync(request);
-
-        Assert.False(result.IsSuccess);
-        Assert.Equal("Раздел не найден", result.Error);
     }
 
     /// <summary>
@@ -114,7 +84,6 @@ public class ArticleServiceTests : IDisposable
         {
             Title = "Тестовая статья",
             Content = "Содержимое",
-            SectionId = _testSection.Id,
             Tags = new List<string>()
         };
 
@@ -137,7 +106,6 @@ public class ArticleServiceTests : IDisposable
         {
             Title = "Исходная статья",
             Content = "Исходное содержимое",
-            SectionId = _testSection.Id,
             Tags = new List<string> { "тег1" }
         };
 
@@ -151,7 +119,6 @@ public class ArticleServiceTests : IDisposable
         {
             Title = "Обновленная статья",
             Content = "Обновленное содержимое",
-            SectionId = _testSection.Id,
             Tags = new List<string> { "тег2", "тег3" }
         };
 
@@ -178,7 +145,6 @@ public class ArticleServiceTests : IDisposable
         {
             Title = "Тестовая статья",
             Content = "Содержимое",
-            SectionId = _testSection.Id,
             Tags = new List<string> { "тег1" }
         };
 
@@ -189,7 +155,6 @@ public class ArticleServiceTests : IDisposable
         {
             Title = "Обновленная статья",
             Content = "Обновленное содержимое",
-            SectionId = _testSection.Id,
             Tags = new List<string> { "новыйТег", "НОВЫЙТЕГ", "другойТег", "ДругойТег" }
         };
 
@@ -211,7 +176,6 @@ public class ArticleServiceTests : IDisposable
         {
             Title = "Обновленная статья",
             Content = "Содержимое",
-            SectionId = _testSection.Id,
             Tags = new List<string>()
         };
 
@@ -231,7 +195,6 @@ public class ArticleServiceTests : IDisposable
         {
             Title = "Тестовая статья",
             Content = "Содержимое",
-            SectionId = _testSection.Id,
             Tags = new List<string> { "тег1", "тег2" }
         };
 
@@ -268,7 +231,6 @@ public class ArticleServiceTests : IDisposable
         {
             Title = "Статья для удаления",
             Content = "Содержимое",
-            SectionId = _testSection.Id,
             Tags = new List<string>()
         };
 
@@ -299,13 +261,12 @@ public class ArticleServiceTests : IDisposable
     /// Тест сохранения порядка тегов пользователя
     /// </summary>
     [Fact]
-    public async Task CreateAsync_ShouldPreserveUserTagOrder()
+    public async Task CreateAsync_ShouldReturnSortedTags()
     {
         var request = new CreateArticleRequest
         {
             Title = "Статья с упорядоченными тегами",
             Content = "Содержимое",
-            SectionId = _testSection.Id,
             Tags = new List<string> { "третий", "первый", "второй" }
         };
 
@@ -313,9 +274,9 @@ public class ArticleServiceTests : IDisposable
 
         Assert.True(result.IsSuccess);
         Assert.Equal(3, result.Value!.Tags.Count);
-        Assert.Equal("третий", result.Value.Tags[0]);
+        Assert.Equal("второй", result.Value.Tags[0]);
         Assert.Equal("первый", result.Value.Tags[1]);
-        Assert.Equal("второй", result.Value.Tags[2]);
+        Assert.Equal("третий", result.Value.Tags[2]);
     }
 
     /// <summary>
@@ -328,7 +289,6 @@ public class ArticleServiceTests : IDisposable
         {
             Title = "Первая статья",
             Content = "Содержимое",
-            SectionId = _testSection.Id,
             Tags = new List<string> { "общийТег" }
         };
 
@@ -340,7 +300,6 @@ public class ArticleServiceTests : IDisposable
         {
             Title = "Вторая статья",
             Content = "Содержимое",
-            SectionId = _testSection.Id,
             Tags = new List<string> { "ОбщийТег" }
         };
 
