@@ -1,5 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using WebApi.Application.Interfaces;
 using WebApi.Infrastructure.Data;
+using WebApi.Infrastructure.Services;
+using WebApi.Presentation.Endpoints;
 
 /// <summary>
 /// Точка входа в приложение Web API
@@ -9,6 +12,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Добавление сервисов в контейнер DI
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<IArticleService, ArticleService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -23,6 +28,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Регистрация эндпоинтов для статей
+app.MapArticleEndpoints();
 
 var summaries = new[]
 {

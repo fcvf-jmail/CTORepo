@@ -1,0 +1,81 @@
+### Articles API Test File
+### Этот файл содержит примеры HTTP запросов к API статей
+
+@baseUrl = http://localhost:5000
+@sectionId = 00000000-0000-0000-0000-000000000001
+@articleId = 00000000-0000-0000-0000-000000000001
+
+### Создать новую статью (POST /api/articles)
+POST {{baseUrl}}/api/articles
+Content-Type: application/json
+
+{
+    "title": "Моя первая статья",
+    "content": "Это содержимое моей первой статьи. Здесь может быть много текста.",
+    "sectionId": "{{sectionId}}",
+    "tags": ["C#", "ASP.NET", "Web API", "c#"]
+}
+
+### Получить статью по ID (GET /api/articles/{id})
+GET {{baseUrl}}/api/articles/{{articleId}}
+
+### Обновить статью (PUT /api/articles/{id})
+PUT {{baseUrl}}/api/articles/{{articleId}}
+Content-Type: application/json
+
+{
+    "title": "Обновленная статья",
+    "content": "Обновленное содержимое статьи с новой информацией.",
+    "sectionId": "{{sectionId}}",
+    "tags": ["C#", "Entity Framework", "PostgreSQL"]
+}
+
+### Удалить статью (DELETE /api/articles/{id})
+DELETE {{baseUrl}}/api/articles/{{articleId}}
+
+### Тест создания статьи с дедупликацией тегов
+POST {{baseUrl}}/api/articles
+Content-Type: application/json
+
+{
+    "title": "Статья с дубликатами тегов",
+    "content": "Эта статья тестирует дедупликацию тегов",
+    "sectionId": "{{sectionId}}",
+    "tags": ["тег1", "Тег2", "ТЕГ1", "тег2", "тег3"]
+}
+
+### Тест создания статьи без тегов
+POST {{baseUrl}}/api/articles
+Content-Type: application/json
+
+{
+    "title": "Статья без тегов",
+    "content": "Эта статья не имеет тегов",
+    "sectionId": "{{sectionId}}",
+    "tags": []
+}
+
+### Тест валидации - пустой заголовок (должен вернуть 400)
+POST {{baseUrl}}/api/articles
+Content-Type: application/json
+
+{
+    "title": "",
+    "content": "Содержимое",
+    "sectionId": "{{sectionId}}",
+    "tags": []
+}
+
+### Тест валидации - несуществующий раздел (должен вернуть 400)
+POST {{baseUrl}}/api/articles
+Content-Type: application/json
+
+{
+    "title": "Тестовая статья",
+    "content": "Содержимое",
+    "sectionId": "99999999-9999-9999-9999-999999999999",
+    "tags": []
+}
+
+### Тест получения несуществующей статьи (должен вернуть 404)
+GET {{baseUrl}}/api/articles/99999999-9999-9999-9999-999999999999
