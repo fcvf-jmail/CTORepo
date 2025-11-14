@@ -1,9 +1,15 @@
+using Microsoft.EntityFrameworkCore;
+using WebApi.Infrastructure.Data;
+
 /// <summary>
 /// Точка входа в приложение Web API
 /// </summary>
 var builder = WebApplication.CreateBuilder(args);
 
 // Добавление сервисов в контейнер DI
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
