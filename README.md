@@ -56,9 +56,65 @@ Web API слой, содержит эндпоинты, контроллеры и
 
 ## Требования
 
-- .NET 8.0 SDK или выше
+- .NET 8.0 SDK или выше (для локальной разработки)
+- Docker и Docker Compose (для запуска в контейнерах)
 
-## Сборка и запуск
+## Запуск с Docker Compose (рекомендуется)
+
+### Быстрый старт
+
+Запустить приложение вместе с базой данных PostgreSQL одной командой:
+
+```bash
+docker compose up --build
+```
+
+Эта команда выполнит:
+1. Сборку Docker образа приложения
+2. Запуск контейнера PostgreSQL
+3. Запуск контейнера Web API
+4. Автоматическое применение миграций базы данных
+
+### Доступ к приложению
+
+После успешного запуска:
+- **API:** `http://localhost:8080`
+- **Swagger документация:** `http://localhost:8080/swagger`
+- **PostgreSQL:** `localhost:5432`
+  - База данных: `webapi`
+  - Пользователь: `postgres`
+  - Пароль: `postgres`
+
+### Управление контейнерами
+
+```bash
+# Запуск в фоновом режиме
+docker compose up -d
+
+# Просмотр логов
+docker compose logs -f
+
+# Остановка контейнеров
+docker compose down
+
+# Остановка и удаление томов (включая данные БД)
+docker compose down -v
+
+# Пересборка образов
+docker compose build --no-cache
+```
+
+### Переменные окружения
+
+Настройки можно изменить в файле `docker-compose.yml`:
+
+- `POSTGRES_DB` - имя базы данных
+- `POSTGRES_USER` - имя пользователя PostgreSQL
+- `POSTGRES_PASSWORD` - пароль PostgreSQL
+- `ConnectionStrings__DefaultConnection` - строка подключения к БД
+- `ASPNETCORE_ENVIRONMENT` - окружение приложения (Production/Development)
+
+## Сборка и запуск (локальная разработка)
 
 ### Сборка решения
 
@@ -88,6 +144,13 @@ dotnet watch --project src/Presentation/WebApi.Presentation/WebApi.Presentation.
 Настройки приложения находятся в файлах:
 - `appsettings.json` - общие настройки
 - `appsettings.Development.json` - настройки для разработки
+
+## Дополнительная документация
+
+- [docs/DOCKER.md](docs/DOCKER.md) - Подробная документация по Docker и Docker Compose
+- [docs/DATABASE.md](docs/DATABASE.md) - Документация по работе с базой данных и миграциями
+- [docs/ARTICLES_API.md](docs/ARTICLES_API.md) - Документация API для работы со статьями
+- [docs/SWAGGER_CONFIGURATION.md](docs/SWAGGER_CONFIGURATION.md) - Конфигурация Swagger/OpenAPI
 
 ## Стиль кода
 

@@ -1,0 +1,51 @@
+# Директории сборки
+**/bin/
+**/obj/
+**/out/
+
+# Visual Studio
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Тесты и покрытие
+**/TestResults/
+**/*.trx
+**/coverage/
+**/*.coverage
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Docker
+**/docker-compose*
+**/Dockerfile*
+.dockerignore
+
+# Документация и заметки
+*.md
+!README.md
+docs/
+IMPLEMENTATION_SUMMARY.md
+MIGRATION_SUMMARY.md
+
+# Временные файлы
+**/*.tmp
+**/*.temp
+**/*.log
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+
+# Другие
+**/node_modules/
+**/npm-debug.log
+**/.DS_Store
+**/Thumbs.db
