@@ -4,7 +4,6 @@ using Microsoft.OpenApi.Models;
 using WebApi.Application.Interfaces;
 using WebApi.Infrastructure.Data;
 using WebApi.Infrastructure.Services;
-using WebApi.Presentation.Endpoints;
 using WebApi.Presentation.Swagger;
 
 // Точка входа в приложение Web API
@@ -17,6 +16,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped<ISectionService, SectionService>();
 builder.Services.AddScoped<IArticleService, ArticleService>();
 
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -94,9 +94,7 @@ app.UseSwaggerUI(options =>
     options.RoutePrefix = "swagger";
 });
 
-
-// Регистрация эндпоинтов для статей и разделов
-app.MapArticleEndpoints();
-app.MapSectionEndpoints();
+// Регистрация контроллеров
+app.MapControllers();
 
 app.Run();
