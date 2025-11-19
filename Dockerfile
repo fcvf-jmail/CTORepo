@@ -26,22 +26,19 @@ FROM build AS publish
 RUN dotnet publish "WebApi.Presentation.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # Этап 3: Финальный образ для запуска
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 
 # Копируем опубликованное приложение
 COPY --from=publish /app/publish .
 
-# Копируем исходные файлы проекта для миграций
-COPY --from=build /src /src
-
-# Открываем порты
+# Открываем порт
 EXPOSE 8080
-EXPOSE 8081
 
 # Настройка переменных окружения
 ENV ASPNETCORE_URLS=http://+:8080
 ENV ASPNETCORE_ENVIRONMENT=Production
 
-# Запуск приложения через entrypoint скрипт
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
+# Запуск приложения
+# Миграции применяются автоматически при старте из Program.cs
+ENTRYPOINT ["dotnet", "WebApi.Presentation.dll"]

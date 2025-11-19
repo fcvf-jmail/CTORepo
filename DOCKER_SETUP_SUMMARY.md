@@ -12,12 +12,13 @@
 Многоступенчатая сборка Docker образа:
 - **Этап build:** Сборка приложения с .NET SDK 8.0
 - **Этап publish:** Публикация приложения в Release конфигурации
-- **Этап final:** Финальный образ на базе SDK (для поддержки EF Core миграций)
+- **Этап final:** Финальный образ на базе ASP.NET Core Runtime 8.0 (aspnet:8.0)
 
 **Особенности:**
 - Использует кеширование слоев для оптимизации времени сборки
 - Копирует файлы проектов и восстанавливает зависимости перед копированием исходного кода
-- Включает entrypoint скрипт для автоматического применения миграций
+- Финальный образ использует runtime образ `aspnet:8.0` (меньший размер)
+- Миграции применяются автоматически из `Program.cs` при старте приложения
 - Экспонирует порт 8080 для HTTP
 
 ### 2. docker-compose.yml
@@ -40,18 +41,34 @@
 - Автоматически применяет миграции при запуске
 - Restart policy: unless-stopped
 
-### 3. scripts/docker-entrypoint.sh
-**Расположение:** `/scripts/docker-entrypoint.sh`
+### 3. Автоматическое применение миграций
+**Расположение:** `Program.cs`
 
-Entrypoint скрипт, который:
-1. Ждет готовности PostgreSQL (5 секунд начальная задержка)
-2. Применяет миграции Entity Framework Core с механизмом повторных попыток
-   - До 30 попыток с интервалом 2 секунды
-   - Логирование каждой попытки
-   - Выход с ошибкой если все попытки неудачны
-3. Запускает приложение
+Миграции применяются автоматически при запуске приложения:
+1. При старте создается scope для получения DbContext
+2. Вызывается `db.Database.Migrate()` для применения всех pending миграций
+3. После успешного применения миграций запускается Web API
 
-### 4. .dockerignore
+**Преимущества:**
+- Не требуется отдельный entrypoint скрипт
+- Миграции интегрированы в код приложения
+- Проще отладка и тестирование
+- Меньший размер Docker образа (используется aspnet:8.0 вместо sdk:8.0)
+
+### 4. Program.cs интеграция
+
+Код применения миграций в `Program.cs`:
+```csharp
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    db.Database.Migrate(); // Применяет pending миграции
+}
+```
+
+Этот код выполняется перед `app.Run()`, обеспечивая применение миграций до начала обработки запросов.
+
+### 5. .dockerignore
 **Расположение:** `/.dockerignore`
 
 Исключает из контекста сборки:
@@ -63,7 +80,7 @@ Entrypoint скрипт, который:
 - Временные файлы
 - NuGet пакеты
 
-### 5. appsettings.Production.json
+### 6. appsettings.Production.json
 **Расположение:** `/src/Presentation/WebApi.Presentation/appsettings.Production.json`
 
 Production конфигурация для Docker:
@@ -71,7 +88,7 @@ Production конфигурация для Docker:
 - Настроено логирование для Production
 - AllowedHosts: "*"
 
-### 6. .env.example
+### 7. .env.example
 **Расположение:** `/.env.example`
 
 Пример файла с переменными окружения:
@@ -79,13 +96,13 @@ Production конфигурация для Docker:
 - Настройки ASP.NET Core
 - Строка подключения к базе данных
 
-### 7. docs/DOCKER.md
+### 8. docs/DOCKER.md
 **Расположение:** `/docs/DOCKER.md`
 
 Подробная документация на русском языке:
 - Обзор архитектуры Docker
 - Детальное описание Dockerfile и docker-compose.yml
-- Описание entrypoint скрипта
+- Описание автоматического применения миграций из Program.cs
 - Переменные окружения
 - Команды управления контейнерами
 - Volumes и сети
@@ -109,6 +126,14 @@ Production конфигурация для Docker:
 
 ### 2. Program.cs
 **Изменения:**
+- Добавлено автоматическое применение миграций при старте:
+  ```csharp
+  using (var scope = app.Services.CreateScope())
+  {
+      var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+      db.Database.Migrate(); // применяет миграции
+  }
+  ```
 - Swagger UI теперь доступен в Production (для Docker)
 - HTTPS редирект отключен в Production (Docker использует HTTP)
 - Логика:
@@ -133,7 +158,8 @@ Production конфигурация для Docker:
 
 ### ✅ 1. Dockerfile с многоступенчатой сборкой
 - Реализован многоступенчатый Dockerfile
-- Использует образы mcr.microsoft.com/dotnet/sdk:8.0
+- Build stage: использует образ mcr.microsoft.com/dotnet/sdk:8.0
+- Runtime stage: использует образ mcr.microsoft.com/dotnet/aspnet:8.0
 - Оптимизирован с кешированием слоев
 
 ### ✅ 2. docker-compose.yml с API и PostgreSQL
@@ -148,10 +174,10 @@ Production конфигурация для Docker:
 - Правильная строка подключения для Docker
 
 ### ✅ 4. Автоматическое применение миграций
-- Entrypoint скрипт scripts/docker-entrypoint.sh
-- Использует dotnet ef database update
-- Механизм повторных попыток для надежности
-- Логирование процесса миграций
+- Миграции применяются из Program.cs при старте приложения
+- Использует db.Database.Migrate() метод Entity Framework Core
+- Не требуется отдельный entrypoint скрипт
+- Интегрировано в код приложения
 
 ### ✅ 5. Обновленный README с инструкциями
 - Секция "Запуск с Docker Compose"
@@ -201,11 +227,11 @@ docker compose down -v
 
 ## Особенности реализации
 
-1. **Автоматические миграции:** Применяются при каждом запуске контейнера, безопасно для повторного применения
+1. **Автоматические миграции:** Применяются при каждом запуске приложения из `Program.cs`, безопасно для повторного применения
 
-2. **Healthcheck:** PostgreSQL проверяется на готовность перед запуском API
+2. **Healthcheck:** PostgreSQL проверяется на готовность перед запуском API (depends_on с condition: service_healthy)
 
-3. **Retry механизм:** До 30 попыток применить миграции с 2-секундными интервалами
+3. **Легковесный образ:** Использует `aspnet:8.0` runtime вместо `sdk:8.0` для меньшего размера образа
 
 4. **Swagger в Production:** Включен для удобства работы с Docker
 
