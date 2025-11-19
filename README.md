@@ -73,7 +73,7 @@ docker compose up --build
 1. Сборку Docker образа приложения
 2. Запуск контейнера PostgreSQL
 3. Запуск контейнера Web API
-4. Автоматическое применение миграций базы данных
+4. Автоматическое применение миграций базы данных при старте приложения
 
 ### Доступ к приложению
 
@@ -148,6 +148,7 @@ dotnet watch --project src/Presentation/WebApi.Presentation/WebApi.Presentation.
 ## Дополнительная документация
 
 - [docs/DOCKER.md](docs/DOCKER.md) - Подробная документация по Docker и Docker Compose
+- [docs/PROGRAM_CS_MIGRATIONS.md](docs/PROGRAM_CS_MIGRATIONS.md) - Интеграция миграций в Program.cs
 - [docs/DATABASE.md](docs/DATABASE.md) - Документация по работе с базой данных и миграциями
 - [docs/ARTICLES_API.md](docs/ARTICLES_API.md) - Документация API для работы со статьями
 - [docs/SWAGGER_CONFIGURATION.md](docs/SWAGGER_CONFIGURATION.md) - Конфигурация Swagger/OpenAPI
