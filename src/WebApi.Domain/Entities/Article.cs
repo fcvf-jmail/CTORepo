@@ -28,5 +28,5 @@ public class Article : BaseEntity
     /// <summary>
     /// Коллекция тегов, связанных со статьей
     /// </summary>
-    public ICollection<Tag> Tags { get; set; } = new List<Tag>();
+    public ICollection<Tag> Tags { get; set; } = [];
 }

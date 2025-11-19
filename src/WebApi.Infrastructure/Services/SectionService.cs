@@ -9,26 +9,20 @@ namespace WebApi.Infrastructure.Services;
 /// <summary>
 /// Сервис для работы с разделами
 /// </summary>
-public class SectionService : ISectionService
+/// <remarks>
+/// Конструктор сервиса
+/// </remarks>
+/// <param name="sectionRepository">Репозиторий для работы с разделами</param>
+/// <param name="tagRepository">Репозиторий для работы с тегами</param>
+public class SectionService(ISectionRepository sectionRepository, ITagRepository tagRepository) : ISectionService
 {
-    private readonly ISectionRepository _sectionRepository;
-    private readonly ITagRepository _tagRepository;
-
-    /// <summary>
-    /// Конструктор сервиса
-    /// </summary>
-    /// <param name="sectionRepository">Репозиторий для работы с разделами</param>
-    /// <param name="tagRepository">Репозиторий для работы с тегами</param>
-    public SectionService(ISectionRepository sectionRepository, ITagRepository tagRepository)
-    {
-        _sectionRepository = sectionRepository;
-        _tagRepository = tagRepository;
-    }
+    private readonly ISectionRepository _sectionRepository = sectionRepository;
+    private readonly ITagRepository _tagRepository = tagRepository;
 
     /// <summary>
     /// Получить все разделы с сортировкой по количеству статей (по убыванию)
     /// </summary>
-    public async Task<Result<List<SectionResponse>>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<Result<IEnumerable<SectionResponse>>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         var sections = await _sectionRepository.GetAllAsync(cancellationToken);
 
@@ -45,19 +39,19 @@ public class SectionService : ISectionService
             .OrderByDescending(s => s.ArticleCount)
             .ToList();
 
-        return Result<List<SectionResponse>>.Success(response);
+        return Result<IEnumerable<SectionResponse>>.Success(response);
     }
 
     /// <summary>
     /// Получить статьи раздела с сортировкой по дате изменения/создания
     /// </summary>
-    public async Task<Result<List<ArticleResponse>>> GetArticlesBySectionIdAsync(Guid sectionId, CancellationToken cancellationToken = default)
+    public async Task<Result<IEnumerable<ArticleResponse>>> GetArticlesBySectionIdAsync(Guid sectionId, CancellationToken cancellationToken = default)
     {
         var section = await _sectionRepository.GetByIdAsync(sectionId, cancellationToken);
 
         if (section == null)
         {
-            return Result<List<ArticleResponse>>.Failure("Раздел не найден");
+            return Result<IEnumerable<ArticleResponse>>.Failure("Раздел не найден");
         }
 
         var response = section.Articles
@@ -74,7 +68,7 @@ public class SectionService : ISectionService
             })
             .ToList();
 
-        return Result<List<ArticleResponse>>.Success(response);
+        return Result<IEnumerable<ArticleResponse>>.Success(response);
     }
 
     /// <summary>
@@ -102,7 +96,7 @@ public class SectionService : ISectionService
     {
         if (tagNames == null || tagNames.Count == 0)
         {
-            return new List<string>();
+            return [];
         }
 
         var uniqueTagNames = new List<string>();

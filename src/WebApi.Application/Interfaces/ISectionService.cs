@@ -13,7 +13,7 @@ public interface ISectionService
     /// </summary>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат со списком разделов или ошибкой</returns>
-    Task<Result<IAsyncEnumerable<SectionResponse>>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<Result<IEnumerable<SectionResponse>>> GetAllAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Получить статьи раздела с сортировкой по дате изменения/создания
@@ -21,7 +21,7 @@ public interface ISectionService
     /// <param name="sectionId">Идентификатор раздела</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат со списком статей или ошибкой</returns>
-    Task<Result<List<ArticleResponse>>> GetArticlesBySectionIdAsync(Guid sectionId, CancellationToken cancellationToken = default);
+    Task<Result<IEnumerable<ArticleResponse>>> GetArticlesBySectionIdAsync(Guid sectionId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Получить или создать раздел для указанного набора тегов

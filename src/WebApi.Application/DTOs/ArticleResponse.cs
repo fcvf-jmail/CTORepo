@@ -37,7 +37,7 @@ public class ArticleResponse
     /// Список тегов статьи (отсортирован по алфавиту)
     /// </summary>
     /// <example>["Архитектура", "Паттерны", "Разработка"]</example>
-    public List<string> Tags { get; set; } = new();
+    public List<string> Tags { get; set; } = [];
 
     /// <summary>
     /// Дата создания статьи в формате UTC

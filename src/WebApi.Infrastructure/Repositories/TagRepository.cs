@@ -8,18 +8,9 @@ namespace WebApi.Infrastructure.Repositories;
 /// <summary>
 /// Реализация репозитория для работы с тегами
 /// </summary>
-public class TagRepository : ITagRepository
+public class TagRepository(ApplicationDbContext context) : ITagRepository
 {
-    private readonly ApplicationDbContext _context;
-
-    /// <summary>
-    /// Конструктор репозитория тегов
-    /// </summary>
-    /// <param name="context">Контекст базы данных</param>
-    public TagRepository(ApplicationDbContext context)
-    {
-        _context = context;
-    }
+    private readonly ApplicationDbContext _context = context;
 
     /// <summary>
     /// Получить тег по идентификатору
@@ -34,8 +25,7 @@ public class TagRepository : ITagRepository
     /// </summary>
     public async Task<Tag?> GetByNormalizedNameAsync(string normalizedName, CancellationToken cancellationToken = default)
     {
-        return await _context.Tags
-            .FirstOrDefaultAsync(t => t.NormalizedName == normalizedName, cancellationToken);
+        return await _context.Tags.FirstOrDefaultAsync(t => t.NormalizedName == normalizedName, cancellationToken);
     }
 
     /// <summary>

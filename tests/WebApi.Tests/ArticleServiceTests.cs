@@ -42,7 +42,7 @@ public class ArticleServiceTests : IDisposable
         {
             Title = "Тестовая статья",
             Content = "Содержимое тестовой статьи",
-            Tags = new List<string> { "тег1", "Тег2", "ТЕГ1", "тег2", "тег3" }
+            Tags = ["тег1", "Тег2", "ТЕГ1", "тег2", "тег3"]
         };
 
         var result = await _articleService.CreateAsync(request);
@@ -68,7 +68,7 @@ public class ArticleServiceTests : IDisposable
         {
             Title = "Статья без тегов",
             Content = "Содержимое статьи без тегов",
-            Tags = new List<string>()
+            Tags = []
         };
 
         var result = await _articleService.CreateAsync(request);
@@ -90,7 +90,7 @@ public class ArticleServiceTests : IDisposable
         {
             Title = "Тестовая статья",
             Content = "Содержимое",
-            Tags = new List<string>()
+            Tags = []
         };
 
         var result = await _articleService.CreateAsync(request);
@@ -112,7 +112,7 @@ public class ArticleServiceTests : IDisposable
         {
             Title = "Исходная статья",
             Content = "Исходное содержимое",
-            Tags = new List<string> { "тег1" }
+            Tags = ["тег1"]
         };
 
         var createResult = await _articleService.CreateAsync(createRequest);
@@ -125,7 +125,7 @@ public class ArticleServiceTests : IDisposable
         {
             Title = "Обновленная статья",
             Content = "Обновленное содержимое",
-            Tags = new List<string> { "тег2", "тег3" }
+            Tags = ["тег2", "тег3"]
         };
 
         var updateResult = await _articleService.UpdateAsync(articleId, updateRequest);
@@ -151,7 +151,7 @@ public class ArticleServiceTests : IDisposable
         {
             Title = "Тестовая статья",
             Content = "Содержимое",
-            Tags = new List<string> { "тег1" }
+            Tags = ["тег1"]
         };
 
         var createResult = await _articleService.CreateAsync(createRequest);
@@ -161,7 +161,7 @@ public class ArticleServiceTests : IDisposable
         {
             Title = "Обновленная статья",
             Content = "Обновленное содержимое",
-            Tags = new List<string> { "новыйТег", "НОВЫЙТЕГ", "другойТег", "ДругойТег" }
+            Tags = ["новыйТег", "НОВЫЙТЕГ", "другойТег", "ДругойТег"]
         };
 
         var updateResult = await _articleService.UpdateAsync(articleId, updateRequest);
@@ -182,7 +182,7 @@ public class ArticleServiceTests : IDisposable
         {
             Title = "Обновленная статья",
             Content = "Содержимое",
-            Tags = new List<string>()
+            Tags = []
         };
 
         var result = await _articleService.UpdateAsync(Guid.NewGuid(), updateRequest);
@@ -201,7 +201,7 @@ public class ArticleServiceTests : IDisposable
         {
             Title = "Тестовая статья",
             Content = "Содержимое",
-            Tags = new List<string> { "тег1", "тег2" }
+            Tags = ["тег1", "тег2"]
         };
 
         var createResult = await _articleService.CreateAsync(createRequest);
@@ -237,7 +237,7 @@ public class ArticleServiceTests : IDisposable
         {
             Title = "Статья для удаления",
             Content = "Содержимое",
-            Tags = new List<string>()
+            Tags = []
         };
 
         var createResult = await _articleService.CreateAsync(createRequest);
@@ -273,7 +273,7 @@ public class ArticleServiceTests : IDisposable
         {
             Title = "Статья с упорядоченными тегами",
             Content = "Содержимое",
-            Tags = new List<string> { "третий", "первый", "второй" }
+            Tags = ["третий", "первый", "второй"]
         };
 
         var result = await _articleService.CreateAsync(request);
@@ -295,7 +295,7 @@ public class ArticleServiceTests : IDisposable
         {
             Title = "Первая статья",
             Content = "Содержимое",
-            Tags = new List<string> { "общийТег" }
+            Tags = ["общийТег"]
         };
 
         await _articleService.CreateAsync(firstRequest);
@@ -306,7 +306,7 @@ public class ArticleServiceTests : IDisposable
         {
             Title = "Вторая статья",
             Content = "Содержимое",
-            Tags = new List<string> { "ОбщийТег" }
+            Tags = ["ОбщийТег"]
         };
 
         var result = await _articleService.CreateAsync(secondRequest);

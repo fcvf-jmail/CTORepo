@@ -124,7 +124,7 @@ public class ArticleService(IArticleRepository articleRepository, ITagRepository
     {
         if (tagNames == null || tagNames.Count == 0)
         {
-            return new List<Tag>();
+            return [];
         }
 
         var uniqueTagNames = new List<string>();

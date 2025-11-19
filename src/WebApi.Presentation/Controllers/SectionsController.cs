@@ -7,20 +7,15 @@ namespace WebApi.Presentation.Controllers;
 /// <summary>
 /// Контроллер для работы с разделами
 /// </summary>
+/// <remarks>
+/// Конструктор контроллера разделов
+/// </remarks>
+/// <param name="sectionService">Сервис для работы с разделами</param>
 [ApiController]
 [Route("api/[controller]")]
-public class SectionsController : ControllerBase
+public class SectionsController(ISectionService sectionService) : ControllerBase
 {
-    private readonly ISectionService _sectionService;
-
-    /// <summary>
-    /// Конструктор контроллера разделов
-    /// </summary>
-    /// <param name="sectionService">Сервис для работы с разделами</param>
-    public SectionsController(ISectionService sectionService)
-    {
-        _sectionService = sectionService;
-    }
+    private readonly ISectionService _sectionService = sectionService;
 
     /// <summary>
     /// Получить все разделы
@@ -28,8 +23,8 @@ public class SectionsController : ControllerBase
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Список всех разделов</returns>
     /// <remarks>
-    /// Возвращает список всех разделов, отсортированный по количеству статей (убывание). 
-    /// Теги в каждом разделе отсортированы по алфавиту.
+    /// Возвращает список всех разделов, отсортированный по количеству статей (убывание)
+    /// Теги в каждом разделе отсортированы по алфавиту
     /// </remarks>
     /// <response code="200">Список разделов успешно получен</response>
     [HttpGet]
@@ -53,7 +48,7 @@ public class SectionsController : ControllerBase
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Список статей указанного раздела</returns>
     /// <remarks>
-    /// Возвращает список статей указанного раздела, отсортированный по дате обновления/создания (убывание). 
+    /// Возвращает список статей указанного раздела, отсортированный по дате обновления/создания (убывание)
     /// Теги в каждой статье отсортированы по алфавиту.
     /// </remarks>
     /// <response code="200">Список статей успешно получен</response>

@@ -26,7 +26,7 @@ public class SectionResponse
     /// Список тегов раздела (отсортирован по алфавиту)
     /// </summary>
     /// <example>["Архитектура", "Паттерны", "Разработка"]</example>
-    public List<string> Tags { get; set; } = new();
+    public List<string> Tags { get; set; } = [];
 
     /// <summary>
     /// Количество статей в разделе

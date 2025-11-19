@@ -7,20 +7,15 @@ namespace WebApi.Presentation.Controllers;
 /// <summary>
 /// Контроллер для работы со статьями
 /// </summary>
+/// <remarks>
+/// Конструктор контроллера статей
+/// </remarks>
+/// <param name="articleService">Сервис для работы со статьями</param>
 [ApiController]
 [Route("api/[controller]")]
-public class ArticlesController : ControllerBase
+public class ArticlesController(IArticleService articleService) : ControllerBase
 {
-    private readonly IArticleService _articleService;
-
-    /// <summary>
-    /// Конструктор контроллера статей
-    /// </summary>
-    /// <param name="articleService">Сервис для работы со статьями</param>
-    public ArticlesController(IArticleService articleService)
-    {
-        _articleService = articleService;
-    }
+    private readonly IArticleService _articleService = articleService;
 
     /// <summary>
     /// Получить статью по идентификатору
@@ -83,8 +78,7 @@ public class ArticlesController : ControllerBase
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Обновленная статья</returns>
     /// <remarks>
-    /// Обновляет существующую статью. При изменении тегов статья может переместиться в другой раздел. 
-    /// Теги дедуплицируются и сортируются по алфавиту.
+    /// Обновляет существующую статью. При изменении тегов статья может переместиться в другой раздел
     /// </remarks>
     /// <response code="200">Статья успешно обновлена</response>
     /// <response code="400">Неверные данные запроса</response>
@@ -112,7 +106,7 @@ public class ArticlesController : ControllerBase
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат удаления</returns>
     /// <remarks>
-    /// Удаляет статью по указанному идентификатору.
+    /// Удаляет статью по указанному идентификатору
     /// </remarks>
     /// <response code="204">Статья успешно удалена</response>
     /// <response code="404">Статья не найдена</response>

@@ -2,22 +2,19 @@ using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using WebApi.Application.DTOs;
+using System;
+using System.Collections.Generic;
 
-namespace WebApi.Presentation.Swagger;
-
-/// <summary>
-/// Фильтр для добавления примеров схем в документацию Swagger
-/// </summary>
-public class SchemaExamplesFilter : ISchemaFilter
+namespace WebApi.Presentation.Swagger
 {
     /// <summary>
-    /// Добавляет примеры для схем DTO
+    /// Фильтр для добавления примеров схем в документацию Swagger
     /// </summary>
-    public void Apply(OpenApiSchema schema, SchemaFilterContext context)
+    public class SchemaExamplesFilter : ISchemaFilter
     {
-        if (context.Type == typeof(CreateArticleRequest))
+        private readonly Dictionary<Type, Func<OpenApiObject>> _examples = new()
         {
-            schema.Example = new OpenApiObject
+            [typeof(CreateArticleRequest)] = () => new OpenApiObject
             {
                 ["title"] = new OpenApiString("Введение в Clean Architecture"),
                 ["content"] = new OpenApiString("Clean Architecture - это архитектурный подход, предложенный Робертом Мартином..."),
@@ -27,11 +24,9 @@ public class SchemaExamplesFilter : ISchemaFilter
                     new OpenApiString("Разработка"),
                     new OpenApiString("Паттерны")
                 }
-            };
-        }
-        else if (context.Type == typeof(UpdateArticleRequest))
-        {
-            schema.Example = new OpenApiObject
+            },
+
+            [typeof(UpdateArticleRequest)] = () => new OpenApiObject
             {
                 ["title"] = new OpenApiString("Обновленное введение в Clean Architecture"),
                 ["content"] = new OpenApiString("Clean Architecture - это архитектурный подход, который помогает разрабатывать масштабируемые приложения..."),
@@ -41,11 +36,9 @@ public class SchemaExamplesFilter : ISchemaFilter
                     new OpenApiString("Разработка"),
                     new OpenApiString("Best Practices")
                 }
-            };
-        }
-        else if (context.Type == typeof(ArticleResponse))
-        {
-            schema.Example = new OpenApiObject
+            },
+
+            [typeof(ArticleResponse)] = () => new OpenApiObject
             {
                 ["id"] = new OpenApiString("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
                 ["title"] = new OpenApiString("Введение в Clean Architecture"),
@@ -59,11 +52,9 @@ public class SchemaExamplesFilter : ISchemaFilter
                 },
                 ["createdAt"] = new OpenApiString("2024-01-15T10:30:00Z"),
                 ["updatedAt"] = new OpenApiString("2024-01-16T14:45:00Z")
-            };
-        }
-        else if (context.Type == typeof(SectionResponse))
-        {
-            schema.Example = new OpenApiObject
+            },
+
+            [typeof(SectionResponse)] = () => new OpenApiObject
             {
                 ["id"] = new OpenApiString("7fa85f64-5717-4562-b3fc-2c963f66afa9"),
                 ["name"] = new OpenApiString("Архитектура, Паттерны, Разработка"),
@@ -76,7 +67,20 @@ public class SchemaExamplesFilter : ISchemaFilter
                 ["articleCount"] = new OpenApiInteger(5),
                 ["createdAt"] = new OpenApiString("2024-01-15T10:30:00Z"),
                 ["updatedAt"] = new OpenApiString("2024-01-20T09:15:00Z")
-            };
+            }
+        };
+
+        /// <summary>
+        /// Добавляет примеры для схем DTO
+        /// </summary>
+        public void Apply(OpenApiSchema schema, SchemaFilterContext context)
+        {
+            if (context == null || schema == null) return;
+
+            if (_examples.TryGetValue(context.Type, out var exampleFactory))
+            {
+                schema.Example = exampleFactory.Invoke();
+            }
         }
     }
 }

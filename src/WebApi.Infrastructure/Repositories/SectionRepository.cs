@@ -8,18 +8,9 @@ namespace WebApi.Infrastructure.Repositories;
 /// <summary>
 /// Реализация репозитория для работы с разделами
 /// </summary>
-public class SectionRepository : ISectionRepository
+public class SectionRepository(ApplicationDbContext context) : ISectionRepository
 {
-    private readonly ApplicationDbContext _context;
-
-    /// <summary>
-    /// Конструктор репозитория разделов
-    /// </summary>
-    /// <param name="context">Контекст базы данных</param>
-    public SectionRepository(ApplicationDbContext context)
-    {
-        _context = context;
-    }
+    private readonly ApplicationDbContext _context = context;
 
     /// <summary>
     /// Получить раздел по идентификатору

@@ -8,18 +8,10 @@ namespace WebApi.Infrastructure.Repositories;
 /// <summary>
 /// Реализация репозитория для работы со статьями
 /// </summary>
-public class ArticleRepository : IArticleRepository
+/// <remarks>
+public class ArticleRepository(ApplicationDbContext context) : IArticleRepository
 {
-    private readonly ApplicationDbContext _context;
-
-    /// <summary>
-    /// Конструктор репозитория статей
-    /// </summary>
-    /// <param name="context">Контекст базы данных</param>
-    public ArticleRepository(ApplicationDbContext context)
-    {
-        _context = context;
-    }
+    private readonly ApplicationDbContext _context = context;
 
     /// <summary>
     /// Получить статью по идентификатору

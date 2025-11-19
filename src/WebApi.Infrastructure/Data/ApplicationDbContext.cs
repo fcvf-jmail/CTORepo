@@ -7,16 +7,8 @@ namespace WebApi.Infrastructure.Data;
 /// <summary>
 /// Контекст базы данных приложения
 /// </summary>
-public class ApplicationDbContext : DbContext
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
 {
-    /// <summary>
-    /// Конструктор контекста базы данных
-    /// </summary>
-    /// <param name="options">Параметры конфигурации контекста</param>
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
-    {
-    }
-
     /// <summary>
     /// Набор данных для сущности Tag
     /// </summary>
