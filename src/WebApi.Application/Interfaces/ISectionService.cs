@@ -13,7 +13,7 @@ public interface ISectionService
     /// </summary>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат со списком разделов или ошибкой</returns>
-    Task<Result<List<SectionResponse>>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<Result<IAsyncEnumerable<SectionResponse>>> GetAllAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Получить статьи раздела с сортировкой по дате изменения/создания
