@@ -9,6 +9,7 @@ COPY ["src/WebApi.Domain/WebApi.Domain.csproj", "src/WebApi.Domain/"]
 COPY ["src/WebApi.Application/WebApi.Application.csproj", "src/WebApi.Application/"]
 COPY ["src/WebApi.Infrastructure/WebApi.Infrastructure.csproj", "src/WebApi.Infrastructure/"]
 COPY ["src/WebApi.Presentation/WebApi.Presentation.csproj", "src/WebApi.Presentation/"]
+COPY ["src/WebApi.ProjectStartUp/WebApi.ProjectStartUp.csproj", "src/WebApi.ProjectStartUp/"]
 COPY ["tests/WebApi.Tests/WebApi.Tests.csproj", "tests/WebApi.Tests/"]
 
 # Восстанавливаем зависимости
@@ -18,12 +19,12 @@ RUN dotnet restore "WebApi.sln"
 COPY . .
 
 # Собираем проект
-WORKDIR "/src/src/WebApi.Presentation"
-RUN dotnet build "WebApi.Presentation.csproj" -c Release -o /app/build
+WORKDIR "/src/src/WebApi.ProjectStartUp"
+RUN dotnet build "WebApi.ProjectStartUp.csproj" -c Release -o /app/build
 
 # Этап 2: Публикация приложения
 FROM build AS publish
-RUN dotnet publish "WebApi.Presentation.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "WebApi.ProjectStartUp.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # Этап 3: Финальный образ для запуска
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
@@ -40,4 +41,4 @@ ENV ASPNETCORE_URLS=http://+:8080
 ENV ASPNETCORE_ENVIRONMENT=Production
 
 # Запуск приложения
-ENTRYPOINT ["dotnet", "WebApi.Presentation.dll"]
+ENTRYPOINT ["dotnet", "WebApi.ProjectStartUp.dll"]

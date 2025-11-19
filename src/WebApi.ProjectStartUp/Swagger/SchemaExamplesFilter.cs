@@ -5,7 +5,7 @@ using WebApi.Application.DTOs;
 using System;
 using System.Collections.Generic;
 
-namespace WebApi.Presentation.Swagger
+namespace WebApi.ProjectStartUp.Swagger
 {
     /// <summary>
     /// Фильтр для добавления примеров схем в документацию Swagger

@@ -25,7 +25,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0D4D23B3
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi.Tests", "tests\WebApi.Tests\WebApi.Tests.csproj", "{8170BFAB-E506-49E5-A7F6-2D378C74299B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi.ProjectStartUp", "src\WebApi.ProjectStartUp\WebApi.ProjectStartUp.csproj", "{06B9D6C5-D56D-4DC4-91BC-4D12347595B5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = " ", "src\WebApi.ProjectStartUp\WebApi.ProjectStartUp.csproj", "{06B9D6C5-D56D-4DC4-91BC-4D12347595B5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

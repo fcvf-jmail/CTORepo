@@ -6,7 +6,8 @@ using WebApi.Infrastructure.Data;
 using WebApi.Infrastructure.Repositories;
 using WebApi.Infrastructure.Services;
 using WebApi.Presentation.Swagger;
-using Microsoft.OpenApi;
+using WebApi.ProjectStartUp.Swagger;
+using Microsoft.OpenApi.Models;
 
 namespace WebApi.ProjectStartUp
 {
