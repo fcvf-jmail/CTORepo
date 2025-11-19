@@ -73,13 +73,13 @@ docker compose up --build
 1. Сборку Docker образа приложения
 2. Запуск контейнера PostgreSQL
 3. Запуск контейнера Web API
-4. Автоматическое применение миграций базы данных
+4. Автоматическое применение миграций базы данных при старте приложения (из Program.cs)
 
 ### Доступ к приложению
 
 После успешного запуска:
-- **API:** `http://localhost:8080`
-- **Swagger документация:** `http://localhost:8080/swagger`
+- **API:** `http://localhost:5000`
+- **Swagger документация:** `http://localhost:5000/swagger`
 - **PostgreSQL:** `localhost:5432`
   - База данных: `webapi`
   - Пользователь: `postgres`

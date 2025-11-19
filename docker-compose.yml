@@ -30,7 +30,7 @@ services:
       - ASPNETCORE_URLS=http://+:8080
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=webapi;Username=postgres;Password=postgres
     ports:
-      - "8080:8080"
+      - "5000:8080"
     depends_on:
       postgres:
         condition: service_healthy

@@ -2,7 +2,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Копируем файлы решения и проектов
+# Копируем файлы решения и проектов для восстановления зависимостей
 COPY ["WebApi.sln", "./"]
 COPY ["global.json", "./"]
 COPY ["src/Domain/WebApi.Domain/WebApi.Domain.csproj", "src/Domain/WebApi.Domain/"]
@@ -26,22 +26,18 @@ FROM build AS publish
 RUN dotnet publish "WebApi.Presentation.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # Этап 3: Финальный образ для запуска
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 
 # Копируем опубликованное приложение
 COPY --from=publish /app/publish .
 
-# Копируем исходные файлы проекта для миграций
-COPY --from=build /src /src
-
-# Открываем порты
+# Открываем порт
 EXPOSE 8080
-EXPOSE 8081
 
 # Настройка переменных окружения
 ENV ASPNETCORE_URLS=http://+:8080
 ENV ASPNETCORE_ENVIRONMENT=Production
 
-# Запуск приложения через entrypoint скрипт
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
+# Запуск приложения
+ENTRYPOINT ["dotnet", "WebApi.Presentation.dll"]
