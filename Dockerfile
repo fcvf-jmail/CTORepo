@@ -5,10 +5,10 @@ WORKDIR /src
 # Копируем файлы решения и проектов для восстановления зависимостей
 COPY ["WebApi.sln", "./"]
 COPY ["global.json", "./"]
-COPY ["src/Domain/WebApi.Domain/WebApi.Domain.csproj", "src/Domain/WebApi.Domain/"]
-COPY ["src/Application/WebApi.Application/WebApi.Application.csproj", "src/Application/WebApi.Application/"]
-COPY ["src/Infrastructure/WebApi.Infrastructure/WebApi.Infrastructure.csproj", "src/Infrastructure/WebApi.Infrastructure/"]
-COPY ["src/Presentation/WebApi.Presentation/WebApi.Presentation.csproj", "src/Presentation/WebApi.Presentation/"]
+COPY ["src/WebApi.Domain/WebApi.Domain.csproj", "src/WebApi.Domain/"]
+COPY ["src/WebApi.Application/WebApi.Application.csproj", "src/WebApi.Application/"]
+COPY ["src/WebApi.Infrastructure/WebApi.Infrastructure.csproj", "src/WebApi.Infrastructure/"]
+COPY ["src/WebApi.Presentation/WebApi.Presentation.csproj", "src/WebApi.Presentation/"]
 COPY ["tests/WebApi.Tests/WebApi.Tests.csproj", "tests/WebApi.Tests/"]
 
 # Восстанавливаем зависимости
@@ -18,7 +18,7 @@ RUN dotnet restore "WebApi.sln"
 COPY . .
 
 # Собираем проект
-WORKDIR "/src/src/Presentation/WebApi.Presentation"
+WORKDIR "/src/src/WebApi.Presentation"
 RUN dotnet build "WebApi.Presentation.csproj" -c Release -o /app/build
 
 # Этап 2: Публикация приложения

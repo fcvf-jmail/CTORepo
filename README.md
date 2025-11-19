@@ -9,7 +9,7 @@
 Решение организовано по принципам Clean Architecture и разделено на следующие слои:
 
 ### Domain (Домен)
-`src/Domain/WebApi.Domain/`
+`src/WebApi.Domain/`
 
 Содержит основные бизнес-сущности и интерфейсы домена. Этот слой не имеет зависимостей от других проектов и представляет собой ядро приложения.
 
@@ -18,7 +18,7 @@
 - `Interfaces/` - интерфейсы репозиториев и сервисов
 
 ### Application (Приложение)
-`src/Application/WebApi.Application/`
+`src/WebApi.Application/`
 
 Содержит бизнес-логику приложения, обработчики команд и запросов,DTO и маппинг.
 
@@ -29,7 +29,7 @@
 - `Interfaces/` - интерфейсы для работы с инфраструктурой
 
 ### Infrastructure (Инфраструктура)
-`src/Infrastructure/WebApi.Infrastructure/`
+`src/WebApi.Infrastructure/`
 
 Содержит реализацию работы с базой данных, внешними сервисами и другой инфраструктуры.
 
@@ -40,7 +40,7 @@
 - `Repositories/` - реализации репозиториев
 
 ### Presentation (Представление)
-`src/Presentation/WebApi.Presentation/`
+`src/WebApi.Presentation/`
 
 Web API слой, содержит эндпоинты, контроллеры и настройку приложения.
 
@@ -84,25 +84,6 @@ docker compose up --build
   - База данных: `webapi`
   - Пользователь: `postgres`
   - Пароль: `postgres`
-
-### Управление контейнерами
-
-```bash
-# Запуск в фоновом режиме
-docker compose up -d
-
-# Просмотр логов
-docker compose logs -f
-
-# Остановка контейнеров
-docker compose down
-
-# Остановка и удаление томов (включая данные БД)
-docker compose down -v
-
-# Пересборка образов
-docker compose build --no-cache
-```
 
 ### Переменные окружения
 
@@ -151,13 +132,3 @@ dotnet watch --project src/Presentation/WebApi.Presentation/WebApi.Presentation.
 - [docs/DATABASE.md](docs/DATABASE.md) - Документация по работе с базой данных и миграциями
 - [docs/ARTICLES_API.md](docs/ARTICLES_API.md) - Документация API для работы со статьями
 - [docs/SWAGGER_CONFIGURATION.md](docs/SWAGGER_CONFIGURATION.md) - Конфигурация Swagger/OpenAPI
-
-## Стиль кода
-
-Проект использует стандартные соглашения по именованию и оформлению кода .NET, определенные в файле `.editorconfig`.
-
-### Основные правила:
-- Включены nullable reference types
-- Используются implicit usings
-- Отступы: 4 пробела
-- Комментарии и документация на русском языке
