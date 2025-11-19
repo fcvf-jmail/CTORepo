@@ -18,16 +18,16 @@ docker compose up --build
 
 ### Swagger UI (документация API)
 ```
-http://localhost:8080/swagger
+http://localhost:5000/swagger
 ```
 
 ### Прямые вызовы API
 ```bash
 # Получить все разделы
-curl http://localhost:8080/api/sections
+curl http://localhost:5000/api/sections
 
 # Создать статью
-curl -X POST http://localhost:8080/api/articles \
+curl -X POST http://localhost:5000/api/articles \
   -H "Content-Type: application/json" \
   -d '{
     "title": "Моя первая статья",
@@ -36,7 +36,7 @@ curl -X POST http://localhost:8080/api/articles \
   }'
 
 # Получить статью по ID
-curl http://localhost:8080/api/articles/1
+curl http://localhost:5000/api/articles/1
 ```
 
 ## Остановка приложения
@@ -80,8 +80,8 @@ docker compose up --build
 ### Проблема: Порт уже занят
 
 ```bash
-# Проверить что использует порт 8080
-sudo lsof -i :8080
+# Проверить что использует порт 5000
+sudo lsof -i :5000
 
 # Или изменить порт в docker-compose.yml
 ports:
@@ -146,7 +146,7 @@ docker compose build --no-cache
 
 ## Порты
 
-- **8080** - Web API + Swagger UI
+- **5000** - Web API + Swagger UI
 - **5432** - PostgreSQL (опционально для прямого подключения)
 
 ---

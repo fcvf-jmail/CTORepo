@@ -22,8 +22,8 @@ docker compose up --build
 ```
 
 После успешного запуска приложение будет доступно по адресу:
-- API: http://localhost:8080
-- Swagger UI: http://localhost:8080/swagger
+- API: http://localhost:5000
+- Swagger UI: http://localhost:5000/swagger
 
 ## Подробная информация
 
@@ -33,9 +33,9 @@ docker compose up --build
 
 Используется многоступенчатая сборка (multi-stage build) для оптимизации размера образа:
 
-1. **Этап build** - сборка приложения с использованием SDK образа
+1. **Этап build** - сборка приложения с использованием SDK образа (mcr.microsoft.com/dotnet/sdk:8.0)
 2. **Этап publish** - публикация приложения в Release конфигурации
-3. **Этап final** - создание финального образа на базе SDK (для миграций)
+3. **Этап final** - создание финального образа на базе ASP.NET runtime (mcr.microsoft.com/dotnet/aspnet:8.0)
 
 #### docker-compose.yml
 
@@ -48,19 +48,24 @@ docker compose up --build
    - Healthcheck для проверки готовности
 
 2. **webapi** - контейнер приложения
-   - Порт: 8080
+   - Порт: 5000 (хост) -> 8080 (контейнер)
    - Зависит от готовности postgres
-   - Автоматически применяет миграции при запуске
+   - Автоматически применяет миграции при запуске из Program.cs
 
-### Entrypoint Script
+### Автоматические миграции
 
-Скрипт `scripts/docker-entrypoint.sh` выполняет следующие действия:
+Миграции Entity Framework Core применяются автоматически при старте приложения.
+Это реализовано в файле `Program.cs`:
 
-1. Ожидает готовности PostgreSQL (начальная задержка 5 секунд)
-2. Применяет миграции Entity Framework Core с повторными попытками (до 30 попыток)
-3. Запускает приложение
+```csharp
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    db.Database.Migrate(); // применяет миграции
+}
+```
 
-Если миграции не применяются после 30 попыток, контейнер завершается с ошибкой.
+Миграции выполняются до начала прослушивания HTTP запросов, что гарантирует, что база данных в актуальном состоянии перед обработкой запросов.
 
 ### Переменные окружения
 
@@ -160,23 +165,23 @@ volumes:
 Создается bridge сеть `webapi-network`, в которой оба сервиса могут общаться друг с другом:
 
 - Сервисы обращаются друг к другу по имени (например, `postgres` из `webapi`)
-- Порты 5432 (PostgreSQL) и 8080 (Web API) проброшены на хост
+- Порт 5432 (PostgreSQL) и порт 5000 (Web API) проброшены на хост
 
 ### Миграции базы данных
 
-Миграции применяются автоматически при запуске контейнера webapi с помощью entrypoint скрипта.
+Миграции применяются автоматически при запуске приложения внутри контейнера.
+Это реализовано в `Program.cs` с помощью `db.Database.Migrate()`.
 
-Команда, выполняемая для применения миграций:
+Если миграции уже применены, метод безопасно завершается без изменений.
+
+Для создания новых миграций используйте команду локально:
 
 ```bash
-dotnet ef database update \
+dotnet ef migrations add MigrationName \
   --project src/Infrastructure/WebApi.Infrastructure/WebApi.Infrastructure.csproj \
   --startup-project src/Presentation/WebApi.Presentation/WebApi.Presentation.csproj \
-  --context ApplicationDbContext \
-  --no-build
+  --context ApplicationDbContext
 ```
-
-Если миграции уже применены, команда безопасно завершается без изменений.
 
 ### Troubleshooting
 
@@ -191,7 +196,7 @@ dotnet ef database update \
 
 **Решение:**
 1. Проверьте, что контейнеры запущены: `docker compose ps`
-2. Проверьте доступность порта 8080: `curl http://localhost:8080/swagger`
+2. Проверьте доступность порта 5000: `curl http://localhost:5000/swagger`
 3. Проверьте логи: `docker compose logs webapi`
 
 #### Проблема: Ошибка подключения к базе данных
@@ -275,11 +280,13 @@ EOF
 
 ### Production готовность
 
-Текущая конфигурация подходит для development. Для production рекомендуется:
+Текущая конфигурация использует ASP.NET runtime образ (aspnet:8.0) для production.
 
-1. Использовать отдельный образ с aspnet runtime вместо SDK
-2. Настроить логирование в внешнее хранилище
-3. Использовать managed база данных вместо контейнера
-4. Настроить мониторинг и health checks
-5. Использовать secrets management
-6. Настроить backup и disaster recovery
+Дополнительно для production рекомендуется:
+
+1. Настроить логирование в внешнее хранилище
+2. Использовать managed база данных вместо контейнера
+3. Настроить мониторинг и health checks
+4. Использовать secrets management
+5. Настроить backup и disaster recovery
+6. Настроить HTTPS с SSL сертификатами

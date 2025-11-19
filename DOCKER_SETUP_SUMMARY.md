@@ -12,13 +12,14 @@
 Многоступенчатая сборка Docker образа:
 - **Этап build:** Сборка приложения с .NET SDK 8.0
 - **Этап publish:** Публикация приложения в Release конфигурации
-- **Этап final:** Финальный образ на базе SDK (для поддержки EF Core миграций)
+- **Этап final:** Финальный образ на базе ASP.NET runtime 8.0 (mcr.microsoft.com/dotnet/aspnet:8.0)
 
 **Особенности:**
 - Использует кеширование слоев для оптимизации времени сборки
 - Копирует файлы проектов и восстанавливает зависимости перед копированием исходного кода
-- Включает entrypoint скрипт для автоматического применения миграций
-- Экспонирует порт 8080 для HTTP
+- Миграции применяются автоматически из Program.cs при старте приложения
+- Экспонирует порт 8080 внутри контейнера
+- ENTRYPOINT: dotnet WebApi.Presentation.dll
 
 ### 2. docker-compose.yml
 **Расположение:** `/docker-compose.yml`
@@ -36,20 +37,23 @@
 #### Сервис webapi:
 - Собирается из Dockerfile
 - Зависит от готовности postgres (healthcheck)
-- Порт: 8080
-- Автоматически применяет миграции при запуске
+- Порт: 5000 (хост) -> 8080 (контейнер)
+- Автоматически применяет миграции при запуске из Program.cs
 - Restart policy: unless-stopped
 
-### 3. scripts/docker-entrypoint.sh
-**Расположение:** `/scripts/docker-entrypoint.sh`
+### 3. Program.cs
+**Расположение:** `/src/Presentation/WebApi.Presentation/Program.cs`
 
-Entrypoint скрипт, который:
-1. Ждет готовности PostgreSQL (5 секунд начальная задержка)
-2. Применяет миграции Entity Framework Core с механизмом повторных попыток
-   - До 30 попыток с интервалом 2 секунды
-   - Логирование каждой попытки
-   - Выход с ошибкой если все попытки неудачны
-3. Запускает приложение
+Приложение автоматически применяет миграции при старте:
+```csharp
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    db.Database.Migrate(); // применяет миграции
+}
+```
+
+Это выполняется до начала прослушивания HTTP запросов, что гарантирует актуальность схемы БД.
 
 ### 4. .dockerignore
 **Расположение:** `/.dockerignore`
@@ -109,13 +113,16 @@ Production конфигурация для Docker:
 
 ### 2. Program.cs
 **Изменения:**
-- Swagger UI теперь доступен в Production (для Docker)
-- HTTPS редирект отключен в Production (Docker использует HTTP)
-- Логика:
+- Swagger UI доступен как в Development, так и в Production (для Docker)
+- HTTPS редирект только в Development (Docker использует HTTP)
+- Автоматическое применение миграций при старте:
   ```csharp
-  // Swagger всегда включен
-  app.UseSwagger();
-  app.UseSwaggerUI(...);
+  // Автоматическое применение миграций
+  using (var scope = app.Services.CreateScope())
+  {
+      var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+      db.Database.Migrate(); // применяет миграции
+  }
   
   // HTTPS редирект только в Development
   if (app.Environment.IsDevelopment())
@@ -160,8 +167,8 @@ Production конфигурация для Docker:
 - Информация о доступе к сервисам
 
 ### ✅ 6. Сервис доступен по порту
-- API доступен на localhost:8080
-- Swagger UI доступен на localhost:8080/swagger
+- API доступен на localhost:5000
+- Swagger UI доступен на localhost:5000/swagger
 - PostgreSQL доступен на localhost:5432
 
 ### ✅ 7. Документация на русском
@@ -178,7 +185,7 @@ Production конфигурация для Docker:
 docker compose up --build
 
 # Проверка доступности API
-curl http://localhost:8080/swagger
+curl http://localhost:5000/swagger
 
 # Проверка логов
 docker compose logs -f webapi
@@ -192,8 +199,8 @@ docker compose down -v
 
 ## Доступ к сервисам после запуска
 
-- **API:** http://localhost:8080
-- **Swagger UI:** http://localhost:8080/swagger
+- **API:** http://localhost:5000
+- **Swagger UI:** http://localhost:5000/swagger
 - **PostgreSQL:** localhost:5432
   - База: webapi
   - Пользователь: postgres
@@ -201,11 +208,11 @@ docker compose down -v
 
 ## Особенности реализации
 
-1. **Автоматические миграции:** Применяются при каждом запуске контейнера, безопасно для повторного применения
+1. **Автоматические миграции:** Применяются из Program.cs при каждом запуске приложения, безопасно для повторного применения
 
-2. **Healthcheck:** PostgreSQL проверяется на готовность перед запуском API
+2. **Healthcheck:** PostgreSQL проверяется на готовность перед запуском API (через depends_on с condition: service_healthy)
 
-3. **Retry механизм:** До 30 попыток применить миграции с 2-секундными интервалами
+3. **Оптимизированный образ:** Используется aspnet:8.0 runtime вместо SDK для меньшего размера образа
 
 4. **Swagger в Production:** Включен для удобства работы с Docker
 
