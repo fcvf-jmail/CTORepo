@@ -1,9 +1,8 @@
-using Microsoft.EntityFrameworkCore;
 using WebApi.Application.Common;
 using WebApi.Application.DTOs;
 using WebApi.Application.Interfaces;
 using WebApi.Domain.Entities;
-using WebApi.Infrastructure.Data;
+using WebApi.Domain.Interfaces;
 
 namespace WebApi.Infrastructure.Services;
 
@@ -12,15 +11,18 @@ namespace WebApi.Infrastructure.Services;
 /// </summary>
 public class SectionService : ISectionService
 {
-    private readonly ApplicationDbContext _context;
+    private readonly ISectionRepository _sectionRepository;
+    private readonly ITagRepository _tagRepository;
 
     /// <summary>
     /// Конструктор сервиса
     /// </summary>
-    /// <param name="context">Контекст базы данных</param>
-    public SectionService(ApplicationDbContext context)
+    /// <param name="sectionRepository">Репозиторий для работы с разделами</param>
+    /// <param name="tagRepository">Репозиторий для работы с тегами</param>
+    public SectionService(ISectionRepository sectionRepository, ITagRepository tagRepository)
     {
-        _context = context;
+        _sectionRepository = sectionRepository;
+        _tagRepository = tagRepository;
     }
 
     /// <summary>
@@ -28,10 +30,7 @@ public class SectionService : ISectionService
     /// </summary>
     public async Task<Result<List<SectionResponse>>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        var sections = await _context.Sections
-            .Include(s => s.Tags)
-            .Include(s => s.Articles)
-            .ToListAsync(cancellationToken);
+        var sections = await _sectionRepository.GetAllAsync(cancellationToken);
 
         var response = sections
             .Select(s => new SectionResponse
@@ -54,10 +53,7 @@ public class SectionService : ISectionService
     /// </summary>
     public async Task<Result<List<ArticleResponse>>> GetArticlesBySectionIdAsync(Guid sectionId, CancellationToken cancellationToken = default)
     {
-        var section = await _context.Sections
-            .Include(s => s.Articles)
-                .ThenInclude(a => a.Tags)
-            .FirstOrDefaultAsync(s => s.Id == sectionId, cancellationToken);
+        var section = await _sectionRepository.GetByIdAsync(sectionId, cancellationToken);
 
         if (section == null)
         {
@@ -132,34 +128,8 @@ public class SectionService : ISectionService
     /// </summary>
     private async Task<Section?> FindSectionByTagsAsync(List<string> sortedTagNames, CancellationToken cancellationToken)
     {
-        if (sortedTagNames.Count == 0)
-        {
-            return await _context.Sections
-                .Include(s => s.Tags)
-                .FirstOrDefaultAsync(s => s.Tags.Count == 0, cancellationToken);
-        }
-
-        var normalizedTagNames = sortedTagNames.Select(t => t.ToLowerInvariant()).ToList();
-
-        var sections = await _context.Sections
-            .Include(s => s.Tags)
-            .Where(s => s.Tags.Count == sortedTagNames.Count)
-            .ToListAsync(cancellationToken);
-
-        foreach (var section in sections)
-        {
-            var sectionTagNames = section.Tags
-                .Select(t => t.NormalizedName)
-                .OrderBy(n => n)
-                .ToList();
-
-            if (normalizedTagNames.SequenceEqual(sectionTagNames))
-            {
-                return section;
-            }
-        }
-
-        return null;
+        var normalizedTagNames = sortedTagNames.Select(t => t.ToLowerInvariant()).OrderBy(n => n).ToList();
+        return await _sectionRepository.GetByTagsAsync(normalizedTagNames, cancellationToken);
     }
 
     /// <summary>
@@ -178,8 +148,8 @@ public class SectionService : ISectionService
             Tags = tags
         };
 
-        _context.Sections.Add(section);
-        await _context.SaveChangesAsync(cancellationToken);
+        await _sectionRepository.CreateAsync(section, cancellationToken);
+        await _sectionRepository.SaveChangesAsync(cancellationToken);
 
         return section;
     }
@@ -194,8 +164,7 @@ public class SectionService : ISectionService
         foreach (var tagName in tagNames)
         {
             var normalizedName = tagName.ToLowerInvariant();
-            var existingTag = await _context.Tags
-                .FirstOrDefaultAsync(t => t.NormalizedName == normalizedName, cancellationToken);
+            var existingTag = await _tagRepository.GetByNormalizedNameAsync(normalizedName, cancellationToken);
 
             if (existingTag != null)
             {
@@ -208,7 +177,7 @@ public class SectionService : ISectionService
                     Id = Guid.NewGuid(),
                     Name = tagName
                 };
-                _context.Tags.Add(newTag);
+                await _tagRepository.CreateAsync(newTag, cancellationToken);
                 tags.Add(newTag);
             }
         }
