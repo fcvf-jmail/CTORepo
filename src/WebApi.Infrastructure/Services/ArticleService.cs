@@ -1,9 +1,8 @@
-using Microsoft.EntityFrameworkCore;
 using WebApi.Application.Common;
 using WebApi.Application.DTOs;
 using WebApi.Application.Interfaces;
 using WebApi.Domain.Entities;
-using WebApi.Infrastructure.Data;
+using WebApi.Domain.Interfaces;
 
 namespace WebApi.Infrastructure.Services;
 
@@ -13,11 +12,13 @@ namespace WebApi.Infrastructure.Services;
 /// <remarks>
 /// Конструктор сервиса
 /// </remarks>
-/// <param name="context">Контекст базы данных</param>
+/// <param name="articleRepository">Репозиторий для работы со статьями</param>
+/// <param name="tagRepository">Репозиторий для работы с тегами</param>
 /// <param name="sectionService">Сервис для работы с разделами</param>
-public class ArticleService(ApplicationDbContext context, ISectionService sectionService) : IArticleService
+public class ArticleService(IArticleRepository articleRepository, ITagRepository tagRepository, ISectionService sectionService) : IArticleService
 {
-    private readonly ApplicationDbContext _context = context;
+    private readonly IArticleRepository _articleRepository = articleRepository;
+    private readonly ITagRepository _tagRepository = tagRepository;
     private readonly ISectionService _sectionService = sectionService;
 
     /// <summary>
@@ -25,9 +26,7 @@ public class ArticleService(ApplicationDbContext context, ISectionService sectio
     /// </summary>
     public async Task<Result<ArticleResponse>> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var article = await _context.Articles
-            .Include(a => a.Tags)
-            .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
+        var article = await _articleRepository.GetByIdAsync(id, cancellationToken);
 
         if (article == null)
         {
@@ -60,10 +59,8 @@ public class ArticleService(ApplicationDbContext context, ISectionService sectio
         var tags = await ProcessTagsAsync(request.Tags, cancellationToken);
         article.Tags = tags;
 
-        _context.Articles.Add(article);
-        await _context.SaveChangesAsync(cancellationToken);
-
-        await _context.Entry(article).Collection(a => a.Tags).LoadAsync(cancellationToken);
+        await _articleRepository.CreateAsync(article, cancellationToken);
+        await _articleRepository.SaveChangesAsync(cancellationToken);
 
         var response = MapToResponse(article);
         return Result<ArticleResponse>.Success(response);
@@ -74,9 +71,7 @@ public class ArticleService(ApplicationDbContext context, ISectionService sectio
     /// </summary>
     public async Task<Result<ArticleResponse>> UpdateAsync(Guid id, UpdateArticleRequest request, CancellationToken cancellationToken = default)
     {
-        var article = await _context.Articles
-            .Include(a => a.Tags)
-            .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
+        var article = await _articleRepository.GetByIdAsync(id, cancellationToken);
 
         if (article == null)
         {
@@ -97,7 +92,8 @@ public class ArticleService(ApplicationDbContext context, ISectionService sectio
         article.Tags.Clear();
         article.Tags = tags;
 
-        await _context.SaveChangesAsync(cancellationToken);
+        await _articleRepository.UpdateAsync(article, cancellationToken);
+        await _articleRepository.SaveChangesAsync(cancellationToken);
 
         var response = MapToResponse(article);
         return Result<ArticleResponse>.Success(response);
@@ -108,15 +104,15 @@ public class ArticleService(ApplicationDbContext context, ISectionService sectio
     /// </summary>
     public async Task<Result<bool>> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var article = await _context.Articles.FindAsync(new object[] { id }, cancellationToken);
+        var article = await _articleRepository.GetByIdAsync(id, cancellationToken);
 
         if (article == null)
         {
             return Result<bool>.Failure("Статья не найдена");
         }
 
-        _context.Articles.Remove(article);
-        await _context.SaveChangesAsync(cancellationToken);
+        await _articleRepository.DeleteAsync(id, cancellationToken);
+        await _articleRepository.SaveChangesAsync(cancellationToken);
 
         return Result<bool>.Success(true);
     }
@@ -150,8 +146,7 @@ public class ArticleService(ApplicationDbContext context, ISectionService sectio
         foreach (var tagName in uniqueTagNames)
         {
             var normalizedName = tagName.ToLowerInvariant();
-            var existingTag = await _context.Tags
-                .FirstOrDefaultAsync(t => t.NormalizedName == normalizedName, cancellationToken);
+            var existingTag = await _tagRepository.GetByNormalizedNameAsync(normalizedName, cancellationToken);
 
             if (existingTag != null)
             {
@@ -164,7 +159,7 @@ public class ArticleService(ApplicationDbContext context, ISectionService sectio
                     Id = Guid.NewGuid(),
                     Name = tagName
                 };
-                _context.Tags.Add(newTag);
+                await _tagRepository.CreateAsync(newTag, cancellationToken);
                 tags.Add(newTag);
             }
         }

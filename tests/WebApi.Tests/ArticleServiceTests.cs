@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using WebApi.Application.DTOs;
 using WebApi.Domain.Entities;
 using WebApi.Infrastructure.Data;
+using WebApi.Infrastructure.Repositories;
 using WebApi.Infrastructure.Services;
 
 namespace WebApi.Tests;
@@ -22,8 +23,13 @@ public class ArticleServiceTests : IDisposable
             .Options;
 
         _context = new ApplicationDbContext(options);
-        _sectionService = new SectionService(_context);
-        _articleService = new ArticleService(_context, _sectionService);
+        
+        var articleRepository = new ArticleRepository(_context);
+        var tagRepository = new TagRepository(_context);
+        var sectionRepository = new SectionRepository(_context);
+        
+        _sectionService = new SectionService(sectionRepository, tagRepository);
+        _articleService = new ArticleService(articleRepository, tagRepository, _sectionService);
     }
 
     /// <summary>

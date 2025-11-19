@@ -2,7 +2,9 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using WebApi.Application.Interfaces;
+using WebApi.Domain.Interfaces;
 using WebApi.Infrastructure.Data;
+using WebApi.Infrastructure.Repositories;
 using WebApi.Infrastructure.Services;
 using WebApi.Presentation.Swagger;
 
@@ -13,6 +15,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Регистрация репозиториев
+builder.Services.AddScoped<IArticleRepository, ArticleRepository>();
+builder.Services.AddScoped<ITagRepository, TagRepository>();
+builder.Services.AddScoped<ISectionRepository, SectionRepository>();
+
+// Регистрация сервисов
 builder.Services.AddScoped<ISectionService, SectionService>();
 builder.Services.AddScoped<IArticleService, ArticleService>();
 
