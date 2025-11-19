@@ -22,9 +22,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Infrastructure\WebApi.Infrastructure\WebApi.Infrastructure.csproj" />
-    <ProjectReference Include="..\..\src\Application\WebApi.Application\WebApi.Application.csproj" />
-    <ProjectReference Include="..\..\src\Domain\WebApi.Domain\WebApi.Domain.csproj" />
+    <ProjectReference Include="..\..\src\WebApi.Infrastructure\WebApi.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\WebApi.Application\WebApi.Application.csproj" />
+    <ProjectReference Include="..\..\src\WebApi.Domain\WebApi.Domain.csproj" />
   </ItemGroup>
 
 </Project>

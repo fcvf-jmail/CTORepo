@@ -35,10 +35,6 @@ COPY --from=publish /app/publish .
 # Копируем исходные файлы проекта для миграций
 COPY --from=build /src /src
 
-# Копируем скрипт запуска с миграциями
-COPY scripts/docker-entrypoint.sh /app/docker-entrypoint.sh
-RUN chmod +x /app/docker-entrypoint.sh
-
 # Открываем порты
 EXPOSE 8080
 EXPOSE 8081

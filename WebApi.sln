@@ -7,19 +7,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{E196F72E-DC8
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain", "Domain", "{C8A289CD-ABAF-4297-86CA-9CB894AE236F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi.Domain", "src\Domain\WebApi.Domain\WebApi.Domain.csproj", "{B51F633E-7A1B-4017-BE3E-0DC567CE80E2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi.Domain", "src\WebApi.Domain\WebApi.Domain.csproj", "{B51F633E-7A1B-4017-BE3E-0DC567CE80E2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application", "{FF8CE456-C2E2-42CC-9820-7EC5709CC781}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi.Application", "src\Application\WebApi.Application\WebApi.Application.csproj", "{5E5658A6-6EDE-48C9-93C0-F40088DF631E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi.Application", "src\WebApi.Application\WebApi.Application.csproj", "{5E5658A6-6EDE-48C9-93C0-F40088DF631E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{C5BD3CF2-E641-427E-BF5F-502DB35C60E1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi.Infrastructure", "src\Infrastructure\WebApi.Infrastructure\WebApi.Infrastructure.csproj", "{A1F9F2DA-B092-4FAE-B8D5-28A000939465}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi.Infrastructure", "src\WebApi.Infrastructure\WebApi.Infrastructure.csproj", "{A1F9F2DA-B092-4FAE-B8D5-28A000939465}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentation", "{83515AD9-F77F-41A5-B7C3-12E236905A02}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi.Presentation", "src\Presentation\WebApi.Presentation\WebApi.Presentation.csproj", "{F6747DD5-DA1E-472D-9D59-94C75067FC0E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi.Presentation", "src\WebApi.Presentation\WebApi.Presentation.csproj", "{F6747DD5-DA1E-472D-9D59-94C75067FC0E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0D4D23B3-11BA-4573-8ECD-0EF2E68CB371}"
 EndProject
