@@ -132,3 +132,30 @@ dotnet watch --project src/Presentation/WebApi.Presentation/WebApi.Presentation.
 - [docs/DATABASE.md](docs/DATABASE.md) - Документация по работе с базой данных и миграциями
 - [docs/ARTICLES_API.md](docs/ARTICLES_API.md) - Документация API для работы со статьями
 - [docs/SWAGGER_CONFIGURATION.md](docs/SWAGGER_CONFIGURATION.md) - Конфигурация Swagger/OpenAPI
+
+## SMS Spam Filter (NLP)
+
+В корне репозитория доступен самостоятельный Python-пайплайн `sms_spam_filter.py`, реализующий полный цикл бинарной классификации SMS (spam/ham) на основе TF-IDF и моделей Multinomial Naive Bayes + Logistic Regression.
+
+### Требования
+
+```bash
+pip install --break-system-packages pandas numpy seaborn matplotlib scikit-learn nltk python-docx requests
+```
+
+### Запуск
+
+```bash
+python3 sms_spam_filter.py
+```
+
+Скрипт автоматически скачает датасет SMS Spam Collection, выполнит NLP-предобработку (очистка, токенизация, удаление стоп-слов, лемматизация), обучит модели, построит визуализации, выполнит кросс-валидацию и сохранит результаты.
+
+### Артефакты
+
+- `docs/SMS_Spam_Filter_Report.docx` — автоматический отчёт с описанием методологии, метриками, графиками и выводами.
+- `ml_outputs/figures/` — PNG-графики (confusion matrix, ROC, распределения и пр.).
+- `ml_outputs/artifacts/` — сериализованные модель и TF-IDF в формате pickle.
+- `ml_outputs/data/` — кеш исходного датасета (скачивается при первом запуске).
+
+Примеры предсказаний выводятся в консоль, а ключевые события логируются стандартным логгером.

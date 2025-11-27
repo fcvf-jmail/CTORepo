@@ -409,3 +409,6 @@ dotnet-install.sh
 
 # Docker
 docker-compose.override.yml
+
+# ML artifacts
+ml_outputs/data/
